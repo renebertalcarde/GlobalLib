@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,37 @@ namespace GlobalLib
 {
     public static class Procs
     {
+        public static string ShowErrors(ModelStateDictionary ModelState, string delimeter = "\n")
+        {
+            string[] errors = ModelState.Values.Where(x => x.ValidationState == ModelValidationState.Invalid).SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToArray();
+            return ShowErrors(errors, delimeter);
+        }
+
+        public static string ShowErrors(Exception e, string delimeter = "\n")
+        {
+            string ret = "";
+
+            if (e != null)
+            {
+                ret += e.Message;
+                ret += (!String.IsNullOrEmpty(ret) ? delimeter : "") + ShowErrors(e.InnerException, delimeter);
+            }
+
+            return ret;
+        }
+
+        public static string ShowErrors(string[] array, string delimeter = "\n")
+        {
+            string ret = "";
+
+            foreach (string err in array)
+            {
+                ret += (!String.IsNullOrEmpty(ret) ? delimeter : "") + err;
+            }
+
+            return ret;
+        }
+
         public static string FullName(string LastName, string FirstName, string MiddleName, string NameExt)
         {
             string ret = "";
